@@ -1,4 +1,4 @@
-class SchoolEntity:
+class Entity:
     def __init__(self):
         self._id = ""
         self._name = ""
@@ -9,129 +9,114 @@ class SchoolEntity:
     def get_name(self):
         return self._name
 
-    def input_data(self):
-        self._id = input(f"Enter {self.__class__.__name__} ID: ")
-        self._name = input(f"Enter {self.__class__.__name__} Name: ")
+    def input_info(self):
+        self._id = input("Enter ID: ")
+        self._name = input("Enter Name: ")
 
     def __str__(self):
         return f"{self._id} | {self._name}"
 
 
-class Student(SchoolEntity):
+class Student(Entity):
     def __init__(self):
         super().__init__()
         self._dob = ""
 
-    def input_data(self):
-        super().input_data()
-        self._dob = input("Enter Student DoB: ")
+    def input_info(self):
+        print("--- Input Student Info ---")
+        super().input_info()
+        self._dob = input("Enter DoB: ")
 
     def __str__(self):
         return f"{super().__str__()} | {self._dob}"
 
 
-class Course(SchoolEntity):
-    pass
+class Course(Entity):
+    def input_info(self):
+        print("--- Input Course Info ---")
+        super().input_info()
 
 
-class SchoolSystem:
+class Management:
     def __init__(self):
         self.__students = []
         self.__courses = []
         self.__marks = {}
 
-    def input_students(self):
-        try:
-            count = int(input("Number of students: "))
-            for _ in range(count):
-                s = Student()
-                s.input_data()
-                self.__students.append(s)
-        except ValueError:
-            print("Invalid number input.")
+    def add_students(self):
+        n = int(input("Number of students: "))
+        for _ in range(n):
+            s = Student()
+            s.input_info()
+            self.__students.append(s)
 
-    def input_courses(self):
-        try:
-            count = int(input("Number of courses: "))
-            for _ in range(count):
-                c = Course()
-                c.input_data()
-                self.__courses.append(c)
-        except ValueError:
-            print("Invalid number input.")
+    def add_courses(self):
+        n = int(input("Number of courses: "))
+        for _ in range(n):
+            c = Course()
+            c.input_info()
+            self.__courses.append(c)
 
     def list_students(self):
-        print("\n--- Student List ---")
-        if not self.__students:
-            print("No students yet.")
+        print("\n=== Student List ===")
         for s in self.__students:
             print(s)
 
     def list_courses(self):
-        print("\n--- Course List ---")
-        if not self.__courses:
-            print("No courses yet.")
+        print("\n=== Course List ===")
         for c in self.__courses:
             print(c)
 
     def input_marks(self):
-        if not self.__students or not self.__courses:
-            print("Need students and courses first!")
-            return
-        
+        print("\n=== Input Marks ===")
         self.list_courses()
-        cid = input("Enter Course ID to input marks: ")
+        cid = input("Enter Course ID: ")
         
-        if cid not in [c.get_id() for c in self.__courses]:
+        found = False
+        for c in self.__courses:
+            if c.get_id() == cid:
+                found = True
+                break
+        
+        if not found:
             print("Course not found!")
             return
 
         for s in self.__students:
-            try:
-                m = float(input(f"Mark for {s.get_id()} - {s.get_name()}: "))
-                self.__marks[(cid, s.get_id())] = m
-            except ValueError:
-                print("Invalid mark format. Skipping.")
+            m = float(input(f"Mark for {s.get_name()} ({s.get_id()}): "))
+            self.__marks[(cid, s.get_id())] = m
 
     def show_marks(self):
-        if not self.__students or not self.__courses:
-            print("Need students and courses first!")
-            return
-        
+        print("\n=== Show Marks ===")
         self.list_courses()
-        cid = input("Enter Course ID to view marks: ")
+        cid = input("Enter Course ID: ")
         
-        if cid not in [c.get_id() for c in self.__courses]:
-            print("Course not found!")
-            return
-
-        print(f"\n--- Marks for Course: {cid} ---")
+        print(f"Marks for course {cid}:")
         for s in self.__students:
-            m = self.__marks.get((cid, s.get_id()))
-            print(f"{s.get_id()} | {s.get_name()} : {m if m is not None else 'No mark'}")
+            m = self.__marks.get((cid, s.get_id()), "No mark")
+            print(f"{s.get_name()} ({s.get_id()}): {m}")
 
-    def main_menu(self):
+    def menu(self):
         while True:
-            print("\n==============================")
-            print("1. Input students")
-            print("2. Input courses")
+            print("\n----------------------")
+            print("1. Add students")
+            print("2. Add courses")
             print("3. List students")
             print("4. List courses")
             print("5. Input marks")
             print("6. Show marks")
             print("0. Exit")
-            print("==============================")
-            c = input("Choice: ")
+            choice = input("Your choice: ")
             
-            if c == "1": self.input_students()
-            elif c == "2": self.input_courses()
-            elif c == "3": self.list_students()
-            elif c == "4": self.list_courses()
-            elif c == "5": self.input_marks()
-            elif c == "6": self.show_marks()
-            elif c == "0": break
-            else: print("Invalid choice!")
+            if choice == "1": self.add_students()
+            elif choice == "2": self.add_courses()
+            elif choice == "3": self.list_students()
+            elif choice == "4": self.list_courses()
+            elif choice == "5": self.input_marks()
+            elif choice == "6": self.show_marks()
+            elif choice == "0": break
+            else: print("Invalid choice.")
 
 if __name__ == "__main__":
-    system = SchoolSystem()
-    system.main_menu()
+    app = Management()
+    app.menu()
