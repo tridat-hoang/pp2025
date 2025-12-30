@@ -2,7 +2,7 @@ import curses
 from domains.entities import Student, Course
 import input
 import output
-from data import load_data, save_data
+from data import load_data, save_data_threaded
 
 class Management:
     def __init__(self):
@@ -17,6 +17,7 @@ class Management:
             self.__marks = {}
 
     def main(self, stdscr=None):
+        save_thread = None
         while True:
             choice = output.print_menu(stdscr)
             if stdscr:
@@ -35,7 +36,7 @@ class Management:
             elif choice == "6":
                 output.print_marks(self.__courses, self.__students, self.__marks, stdscr)
             elif choice == "0":
-                save_data(self.__students, self.__courses, self.__marks)
+                save_thread = save_data_threaded(self.__students, self.__courses, self.__marks)
                 break
             else:
                 if stdscr:
@@ -47,6 +48,9 @@ class Management:
                 stdscr.addstr("Press any key to continue...")
                 stdscr.getch()
                 stdscr.clear()
+        
+        if save_thread:
+            save_thread.join()
 
 
 if __name__ == "__main__":
